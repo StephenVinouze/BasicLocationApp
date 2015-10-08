@@ -4,6 +4,7 @@ import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,8 +35,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void configureMap(Location location) {
-        mMapFragment.getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(location.getLatitude(), location.getLongitude()), 15));
+        if (location != null) {
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+            mMapFragment.getMap().moveCamera(cameraUpdate);
+        }
     }
 
     @Override
@@ -51,12 +55,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mLocationProvider.fetchLocation(new KBLocationCallback() {
                 @Override
                 public void onLocationReceived(Location location) {
-                    configureMap(location);
+                    Toast.makeText(MapsActivity.this, "Location updated", Toast.LENGTH_SHORT).show();
+                    if (mMapFragment.isAdded()) {
+                        configureMap(location);
+                    }
                 }
 
                 @Override
                 public void onLocationFailed() {
-                    Toast.makeText(MapsActivity.this, "Failed to fetch current location", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MapsActivity.this, "Failed to fetch current location", Toast.LENGTH_SHORT).show();
                 }
             });
         }

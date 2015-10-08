@@ -199,11 +199,9 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG, "Location changed (Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude() + ")");
+        Log.i(TAG, "Location changed");
 
         kLocation = location;
-
-        Log.i(TAG, "city found " + getCity(mContext));
 
         if (!mIsListeningLocationUpdates && location.getAccuracy() < mDesiredAccuracy) {
             stopLocationUpdates();
