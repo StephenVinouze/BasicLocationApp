@@ -10,6 +10,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.stephenvinouze.basiclocationapp.R;
 import com.stephenvinouze.basiclocationapp.location.KBLocationCallback;
@@ -38,8 +39,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void configureMap(Location location) {
         if (location != null) {
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
-            mMapFragment.getMap().moveCamera(cameraUpdate);
+            CameraPosition cp = new CameraPosition.Builder()
+                    .bearing(location.getBearing())
+                    .tilt(0)
+                    .target(latLng)
+                    .zoom(16)
+                    .build();
+            CameraUpdate cu = CameraUpdateFactory.newCameraPosition(cp);
+            mMapFragment.getMap().animateCamera(cu);
         }
     }
 
