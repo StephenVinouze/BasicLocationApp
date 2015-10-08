@@ -35,6 +35,8 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
     Context mContext;
 
     private boolean mIsUpdatingLocation;
+    private boolean mIsListeningLocationUpdates;
+    private float mDesiredAccuracy = MINIMUM_ACCURACY;
     private int mTimeoutDuration;
     private Timer mTimer;
     private GoogleApiClient mApiClient;
@@ -44,8 +46,8 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
     private static Location kLocation;
 
     private static final String TAG = "LocationProvider";
-    private static final long INTERVAL = 1000 * 3;
-    private static final long FASTEST_INTERVAL = 1000;
+    private static final long INTERVAL = 10000;
+    private static final long FASTEST_INTERVAL = INTERVAL / 2;
     private static final float MINIMUM_ACCURACY = 50.0f;
 
     @AfterInject
@@ -62,30 +64,28 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
     }
 
-    @Background
-    public void fetchLocation() {
-        fetchLocation(0);
+    public int getTimeoutDuration() {
+        return mTimeoutDuration;
     }
 
-    @Background
-    public void fetchLocation(int timeoutDuration) {
-        fetchLocation(timeoutDuration, null);
+    public void setTimeoutDuration(int mTimeoutDuration) {
+        this.mTimeoutDuration = mTimeoutDuration;
     }
 
-    @Background
-    public void fetchLocation(int timeoutDuration, KBLocationCallback callback) {
-        if (GooglePlayServicesUtil.isGooglePlayServicesAvailable(mContext) == ConnectionResult.SUCCESS) {
+    public boolean isIsListeningLocationUpdates() {
+        return mIsListeningLocationUpdates;
+    }
 
-            mTimeoutDuration = timeoutDuration;
-            mCallback = callback;
+    public void setIsListeningLocationUpdates(boolean mIsListeningLocationUpdates) {
+        this.mIsListeningLocationUpdates = mIsListeningLocationUpdates;
+    }
 
-            if (!mApiClient.isConnected()) {
-                mApiClient.connect();
-            }
-            else if (!mIsUpdatingLocation) {
-                startLocationUpdates();
-            }
-        }
+    public float getDesiredAccuracy() {
+        return mDesiredAccuracy;
+    }
+
+    public void setDesiredAccuracy(float mDesiredAccuracy) {
+        this.mDesiredAccuracy = mDesiredAccuracy;
     }
 
     public static Location getLocation() {
@@ -156,6 +156,26 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         }
     }
 
+    @Background
+    public void fetchLocation() {
+        fetchLocation(null);
+    }
+
+    @Background
+    public void fetchLocation(KBLocationCallback callback) {
+        if (GooglePlayServicesUtil.isGooglePlayServicesAvailable(mContext) == ConnectionResult.SUCCESS) {
+
+            mCallback = callback;
+
+            if (!mApiClient.isConnected()) {
+                mApiClient.connect();
+            }
+            else if (!mIsUpdatingLocation) {
+                startLocationUpdates();
+            }
+        }
+    }
+
     @Override
     public void onConnected(Bundle arg0) {
         Log.i(TAG, "Connection successful");
@@ -179,20 +199,18 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG, "Location changed");
-        if (kLocation == null || kLocation.getAccuracy() > location.getAccuracy()) {
+        Log.i(TAG, "Location changed (Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude() + ")");
 
-            kLocation = location;
+        kLocation = location;
 
-            Log.i(TAG, "Location found : " + getCity(mContext));
+        Log.i(TAG, "city found " + getCity(mContext));
 
-            if (location.getAccuracy() < MINIMUM_ACCURACY) {
-                stopLocationUpdates();
+        if (!mIsListeningLocationUpdates && location.getAccuracy() < mDesiredAccuracy) {
+            stopLocationUpdates();
+        }
 
-                if (mCallback != null) {
-                    mCallback.onLocationReceived(location);
-                }
-            }
+        if (mCallback != null) {
+            mCallback.onLocationReceived(location);
         }
     }
 

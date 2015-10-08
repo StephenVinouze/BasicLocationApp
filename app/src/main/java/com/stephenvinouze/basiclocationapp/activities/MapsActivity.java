@@ -2,7 +2,7 @@ package com.stephenvinouze.basiclocationapp.activities;
 
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -47,7 +47,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             configureMap(currentLocation);
         }
         else {
-            mLocationProvider.fetchLocation(0, new KBLocationCallback() {
+            mLocationProvider.setIsListeningLocationUpdates(true);
+            mLocationProvider.fetchLocation(new KBLocationCallback() {
                 @Override
                 public void onLocationReceived(Location location) {
                     configureMap(location);
@@ -55,7 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 @Override
                 public void onLocationFailed() {
-                    Log.e("Map", "Failed to fetch current location");
+                    Toast.makeText(MapsActivity.this, "Failed to fetch current location", Toast.LENGTH_LONG).show();
                 }
             });
         }
