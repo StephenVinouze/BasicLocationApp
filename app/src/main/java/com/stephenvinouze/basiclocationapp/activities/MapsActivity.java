@@ -45,6 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap map) {
         map.setMyLocationEnabled(true);
+        //map.getUiSettings().setMyLocationButtonEnabled(false);
 
         Location currentLocation = KBLocationProvider.getLocation();
         if (currentLocation != null) {
@@ -55,7 +56,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mLocationProvider.fetchLocation(new KBLocationCallback() {
                 @Override
                 public void onLocationReceived(Location location) {
-                    Toast.makeText(MapsActivity.this, "Location updated", Toast.LENGTH_SHORT).show();
                     if (mMapFragment.isAdded()) {
                         configureMap(location);
                     }
