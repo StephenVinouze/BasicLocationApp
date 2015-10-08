@@ -9,6 +9,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.stephenvinouze.basiclocationapp.R;
 import com.stephenvinouze.basiclocationapp.location.KBLocationCallback;
@@ -37,7 +38,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void configureMap(Location location) {
         if (location != null) {
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
             mMapFragment.getMap().moveCamera(cameraUpdate);
         }
     }
@@ -45,7 +46,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap map) {
         map.setMyLocationEnabled(true);
-        //map.getUiSettings().setMyLocationButtonEnabled(false);
+        map.setPadding(16, 56, 16, 16);
+
+        UiSettings mapSettings = map.getUiSettings();
+        mapSettings.setMyLocationButtonEnabled(true);
+        mapSettings.setCompassEnabled(true);
+        mapSettings.setMyLocationButtonEnabled(false);
 
         Location currentLocation = KBLocationProvider.getLocation();
         if (currentLocation != null) {
