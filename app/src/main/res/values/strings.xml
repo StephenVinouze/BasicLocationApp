@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">BasicLocationApp</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="menu_map_title">Carte</string>
+    <string name="menu_location_title">Localisation</string>
+
     <string name="location_error">Failed to fetch current location</string>
 </resources>

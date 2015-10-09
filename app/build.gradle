@@ -39,7 +39,7 @@ apt {
 dependencies {
     apt 'org.androidannotations:androidannotations:3.3'
     compile 'org.androidannotations:androidannotations-api:3.3'
-    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:design:23.0.1'
     compile 'com.google.android.gms:play-services-location:8.1.0'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
