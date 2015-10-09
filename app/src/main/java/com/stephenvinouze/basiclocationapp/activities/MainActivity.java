@@ -1,7 +1,14 @@
 package com.stephenvinouze.basiclocationapp.activities;
 
 import android.location.Location;
-import android.support.v4.app.FragmentActivity;
+import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -18,17 +25,46 @@ import com.stephenvinouze.basiclocationapp.location.KBLocationProvider;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
 
 @EActivity(R.layout.main_activity)
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     @Bean
     KBLocationProvider mLocationProvider;
+
+    @ViewById(R.id.toolbar)
+    Toolbar mToolbar;
+
+    @ViewById(R.id.navigation_drawer)
+    DrawerLayout mNavigationDrawer;
+
+    @ViewById(R.id.navigation_view)
+    NavigationView mNavigationView;
 
     private SupportMapFragment mMapFragment;
 
     @AfterViews
     void initViews() {
+        setSupportActionBar(mToolbar);
+        setTitle(null);
+
+        mToolbar.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent));
+
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItem.setChecked(true);
+                mNavigationDrawer.closeDrawers();
+                return true;
+            }
+        });
+
         mMapFragment = SupportMapFragment.newInstance();
         mMapFragment.getMapAsync(this);
 
@@ -48,14 +84,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mNavigationDrawer.openDrawer(GravityCompat.START);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onMapReady(GoogleMap map) {
         map.setMyLocationEnabled(true);
-        map.setPadding(16, 56, 16, 16);
+        map.setPadding(0, (int) getResources().getDimension(R.dimen.compass_margin_top), 0, 0);
 
         UiSettings mapSettings = map.getUiSettings();
-        mapSettings.setMyLocationButtonEnabled(true);
-        mapSettings.setCompassEnabled(true);
         mapSettings.setMyLocationButtonEnabled(false);
+        mapSettings.setCompassEnabled(true);
 
         Location currentLocation = KBLocationProvider.getLocation();
         if (currentLocation != null) {
