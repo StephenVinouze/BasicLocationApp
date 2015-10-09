@@ -10,5 +10,13 @@
             android:id="@+id/menu_location_item"
             android:icon="@drawable/ic_location"
             android:title="@string/menu_location_title"/>
+        <item
+            android:id="@+id/menu_satellite_item"
+            android:icon="@drawable/ic_satellite"
+            android:title="@string/menu_satellite_title"/>
+        <item
+            android:id="@+id/menu_terrain_item"
+            android:icon="@drawable/ic_terrain"
+            android:title="@string/menu_terrain_title"/>
     </group>
 </menu>

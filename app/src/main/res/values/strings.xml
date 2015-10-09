@@ -5,6 +5,8 @@
 
     <string name="menu_map_title">Carte</string>
     <string name="menu_location_title">Localisation</string>
+    <string name="menu_terrain_title">Relief</string>
+    <string name="menu_satellite_title">Satellite</string>
 
     <string name="location_latitude">Latitude : %f</string>
     <string name="location_longitude">Longitude : %f</string>
