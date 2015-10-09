@@ -5,10 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.stephenvinouze.basiclocationapp.R;
-import com.stephenvinouze.basiclocationapp.location.KBLocationProvider;
+import com.stephenvinouze.basiclocationapp.fragments.LocationFragment_;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
@@ -17,9 +16,6 @@ import org.androidannotations.annotations.ViewById;
  */
 @EActivity(R.layout.location_activity)
 public class LocationActivity extends AppCompatActivity {
-
-    @Bean
-    KBLocationProvider mLocationProvider;
 
     @ViewById(R.id.toolbar)
     Toolbar mToolbar;
@@ -32,5 +28,7 @@ public class LocationActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        getSupportFragmentManager().beginTransaction().add(R.id.location_container, LocationFragment_.builder().build()).commit();
     }
 }

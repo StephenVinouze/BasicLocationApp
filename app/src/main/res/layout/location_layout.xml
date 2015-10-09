@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center_vertical"
+              android:orientation="vertical"
+              android:padding="20dp">
+
+    <TextView
+        android:id="@+id/location_latitude_view"
+        style="@style/TextView"/>
+
+    <TextView
+        android:id="@+id/location_longitude_view"
+        style="@style/TextView"/>
+
+    <TextView
+        android:id="@+id/location_accuracy_view"
+        style="@style/TextView"/>
+
+    <TextView
+        android:id="@+id/location_city_view"
+        style="@style/TextView"/>
+
+</LinearLayout>
