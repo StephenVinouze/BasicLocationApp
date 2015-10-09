@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">BasicLocationApp</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="map_name">Carte</string>
+    <string name="location_name">Localisation</string>
 
     <string name="menu_map_title">Carte</string>
     <string name="menu_location_title">Localisation</string>

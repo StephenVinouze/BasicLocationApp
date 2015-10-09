@@ -1,5 +1,6 @@
 package com.stephenvinouze.basiclocationapp.activities;
 
+import android.content.Intent;
 import android.location.Location;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
@@ -27,8 +28,8 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
-@EActivity(R.layout.main_activity)
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+@EActivity(R.layout.map_activity)
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     @Bean
     KBLocationProvider mLocationProvider;
@@ -59,8 +60,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override public boolean onNavigationItemSelected(MenuItem menuItem) {
-                menuItem.setChecked(true);
                 mNavigationDrawer.closeDrawers();
+
+                switch (menuItem.getItemId()) {
+                    case R.id. menu_map_item:
+                        menuItem.setChecked(true);
+                        break;
+
+                    case R.id. menu_location_item:
+                        startActivity(new Intent(MapActivity.this, LocationActivity_.class));
+
+                        break;
+                }
+
                 return true;
             }
         });
@@ -119,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 @Override
                 public void onLocationFailed() {
-                    Toast.makeText(MainActivity.this, getString(R.string.location_error), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MapActivity.this, getString(R.string.location_error), Toast.LENGTH_SHORT).show();
                 }
             });
         }

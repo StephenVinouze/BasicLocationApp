@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.stephenvinouze.basiclocationapp" >
+<manifest package="com.stephenvinouze.basiclocationapp"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -9,20 +9,27 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme.Base" >
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".activities.MainActivity_"
-            android:label="@string/title_activity_maps"
-            android:configChanges="orientation|screenSize">
+            android:name=".activities.MapActivity_"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/map_name"
+            android:theme="@style/MapTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.LocationActivity_"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/location_name">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activities.MapActivity_"/>
         </activity>
     </application>
 
