@@ -29,7 +29,7 @@
             android:layout_alignParentRight="true"
             android:layout_margin="16dp"
             android:clickable="true"
-            android:src="@drawable/ic_location"/>
+            android:src="@drawable/ic_target"/>
 
     </RelativeLayout>
 
