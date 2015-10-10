@@ -3,6 +3,7 @@ package com.stephenvinouze.basiclocationapp.activities;
 import android.content.Intent;
 import android.location.Location;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -29,7 +30,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
 @EActivity(R.layout.map_activity)
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
 
     @Bean
     KBLocationProvider mLocationProvider;
@@ -130,7 +131,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         else {
             mLocationProvider.setIsListeningLocationUpdates(true);
-            mLocationProvider.fetchLocation(new KBLocationCallback() {
+            mLocationProvider.fetchLocation(this, new KBLocationCallback() {
                 @Override
                 public void onLocationReceived(Location location) {
                     if (mMapFragment.isAdded()) {
@@ -140,9 +141,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                 @Override
                 public void onLocationFailed() {
-                    Toast.makeText(MapActivity.this, getString(R.string.location_error), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MapActivity.this, getString(R.string.location_update_error), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onLocationRefused() {
+                    Toast.makeText(MapActivity.this, getString(R.string.location_permission_denied), Toast.LENGTH_SHORT).show();
                 }
             });
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        mLocationProvider.checkPermissions(this, requestCode, grantResults);
     }
 }

@@ -12,5 +12,6 @@
     <string name="location_longitude">Longitude : %f</string>
     <string name="location_accuracy">Précision : %f</string>
     <string name="location_city">Ville : %s</string>
-    <string name="location_error">Failed to fetch current location</string>
+    <string name="location_update_error">Failed to fetch current location</string>
+    <string name="location_permission_denied">La permission pour récupérer la position de l\'utilisateur ont été refusé</string>
 </resources>

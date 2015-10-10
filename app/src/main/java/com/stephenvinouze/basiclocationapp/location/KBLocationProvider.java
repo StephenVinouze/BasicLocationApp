@@ -1,11 +1,20 @@
 package com.stephenvinouze.basiclocationapp.location;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.support.annotation.UiThread;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -14,7 +23,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -34,10 +42,12 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
     @RootContext
     Context mContext;
 
+    private boolean isGPSFix;
     private boolean mIsUpdatingLocation;
     private boolean mIsListeningLocationUpdates;
     private float mDesiredAccuracy = MINIMUM_ACCURACY;
     private int mTimeoutDuration;
+    private long mLastLocationElapsedTime;
     private Timer mTimer;
     private GoogleApiClient mApiClient;
     private LocationRequest mLocationRequest;
@@ -46,23 +56,12 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
     private static Location kLocation;
 
     private static final String TAG = "LocationProvider";
-    private static final long INTERVAL = 10000;
-    private static final long FASTEST_INTERVAL = INTERVAL / 2;
+    private static final long GPS_UPDATE_INTERVAL = 5000;
+    private static final long UPDATE_POSITION_INTERVAL = 10000;
+    private static final long FASTEST_UPDATE_POSITION_INTERVAL = UPDATE_POSITION_INTERVAL / 2;
     private static final float MINIMUM_ACCURACY = 50.0f;
-
-    @AfterInject
-    void init() {
-        mApiClient = new GoogleApiClient.Builder(mContext)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-    }
+    private static final int REQUEST_RESOLVE_ERROR = 1001;
+    private static final int REQUEST_CODE_LOCATION = 2;
 
     public int getTimeoutDuration() {
         return mTimeoutDuration;
@@ -108,6 +107,41 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
             }
         }
         return city;
+    }
+
+    public boolean checkPermissions(Activity activity, int requestCode, int[] grantResults) {
+        if (requestCode == REQUEST_CODE_LOCATION) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                return initializeLocation(activity);
+            } else {
+                if (mCallback != null) {
+                    mCallback.onLocationRefused();
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean initializeLocation(Activity activity) {
+        boolean isPermissionGranted = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        if (!isPermissionGranted) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION);
+        } else {
+            mApiClient = new GoogleApiClient.Builder(mContext)
+                    .addApi(LocationServices.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+
+            mLocationRequest = LocationRequest.create();
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            mLocationRequest.setInterval(UPDATE_POSITION_INTERVAL);
+            mLocationRequest.setFastestInterval(FASTEST_UPDATE_POSITION_INTERVAL);
+
+//            LocationManager locationManager = (LocationManager)mContext.getSystemService(Context.LOCATION_SERVICE);
+//            locationManager.addGpsStatusListener(new GpsListener());
+        }
+        return isPermissionGranted;
     }
 
     private void startLocationUpdates() {
@@ -157,14 +191,13 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
     }
 
     @Background
-    public void fetchLocation() {
-        fetchLocation(null);
+    public void fetchLocation(Activity activity) {
+        fetchLocation(activity, null);
     }
 
     @Background
-    public void fetchLocation(KBLocationCallback callback) {
-        if (GooglePlayServicesUtil.isGooglePlayServicesAvailable(mContext) == ConnectionResult.SUCCESS) {
-
+    public void fetchLocation(Activity activity, KBLocationCallback callback) {
+        if (initializeLocation(activity) && (GooglePlayServicesUtil.isGooglePlayServicesAvailable(mContext) == ConnectionResult.SUCCESS)) {
             mCallback = callback;
 
             if (!mApiClient.isConnected()) {
@@ -187,13 +220,32 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         Log.i(TAG, "Connection suspended");
     }
 
+    private boolean mResolvingError;
+
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.i(TAG, "Connection failed");
-        mApiClient.disconnect();
 
-        if (mCallback != null) {
-            mCallback.onLocationFailed();
+        Activity activity = (Activity)mContext;
+        if (!mResolvingError) {
+            if (connectionResult.hasResolution()) {
+                try {
+                    mResolvingError = true;
+                    connectionResult.startResolutionForResult(activity, REQUEST_RESOLVE_ERROR);
+                } catch (IntentSender.SendIntentException e) {
+                    // There was an error with the resolution intent. Try again.
+                    mApiClient.connect();
+                }
+            }
+            else {
+                // Show dialog using GooglePlayServicesUtil.getErrorDialog()
+                GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), activity, connectionResult.getErrorCode());
+                mResolvingError = true;
+
+                if (mCallback != null) {
+                    mCallback.onLocationFailed();
+                }
+            }
         }
     }
 
@@ -203,6 +255,8 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
 
         kLocation = location;
 
+        mLastLocationElapsedTime = SystemClock.elapsedRealtime();
+
         if (!mIsListeningLocationUpdates && location.getAccuracy() < mDesiredAccuracy) {
             stopLocationUpdates();
         }
@@ -210,6 +264,33 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         if (mCallback != null) {
             mCallback.onLocationReceived(location);
         }
+    }
+
+    @UiThread
+    void updateGpsStatus(String status) {
+        Toast.makeText(mContext, status, Toast.LENGTH_SHORT).show();
+    }
+
+    private class GpsListener implements GpsStatus.Listener {
+
+        public void onGpsStatusChanged(int event) {
+            switch (event) {
+                case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
+                    if (kLocation != null) {
+                        isGPSFix = (SystemClock.elapsedRealtime() - mLastLocationElapsedTime) < GPS_UPDATE_INTERVAL;
+                    }
+
+                    updateGpsStatus(isGPSFix ? "GPS fixed" : "GPS lost");
+
+                    break;
+                case GpsStatus.GPS_EVENT_FIRST_FIX:
+                    isGPSFix = true;
+                    updateGpsStatus("GPS first acquired");
+
+                    break;
+            }
+        }
+
     }
 
 }

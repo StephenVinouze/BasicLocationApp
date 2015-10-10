@@ -8,4 +8,5 @@ import android.location.Location;
 public interface KBLocationCallback {
     void onLocationReceived(Location location);
     void onLocationFailed();
+    void onLocationRefused();
 }
