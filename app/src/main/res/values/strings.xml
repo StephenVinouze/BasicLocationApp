@@ -8,9 +8,9 @@
     <string name="menu_terrain_title">Relief</string>
     <string name="menu_satellite_title">Satellite</string>
 
-    <string name="location_latitude">Latitude : %f</string>
-    <string name="location_longitude">Longitude : %f</string>
-    <string name="location_accuracy">Précision : %f</string>
+    <string name="location_latitude">Latitude : %s</string>
+    <string name="location_longitude">Longitude : %s</string>
+    <string name="location_accuracy">Précision : %s</string>
     <string name="location_city">Ville : %s</string>
     <string name="location_update_error">Failed to fetch current location</string>
     <string name="location_permission_denied">La permission pour récupérer la position de l\'utilisateur ont été refusé</string>

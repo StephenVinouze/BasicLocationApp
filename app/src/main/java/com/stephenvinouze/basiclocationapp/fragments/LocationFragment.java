@@ -38,23 +38,23 @@ public class LocationFragment extends Fragment {
     @ViewById(R.id.location_city_view)
     TextView mCityTextView;
 
+    private final static String UNKNOWN_LOCATION = "--";
+
     @AfterViews
     void initViews() {
         Location currentLocation = KBLocationProvider.getLocation();
-        if (currentLocation != null) {
-            updateLocationTextView(mLatitudeTextView,
-                    getString(R.string.icon_location),
-                    getString(R.string.location_latitude, currentLocation.getLatitude()));
-            updateLocationTextView(mLongitudeTextView,
-                    getString(R.string.icon_location),
-                    getString(R.string.location_longitude, currentLocation.getLongitude()));
-            updateLocationTextView(mAccuracyTextView,
-                    getString(R.string.icon_target),
-                    getString(R.string.location_accuracy, currentLocation.getAccuracy()));
-            updateLocationTextView(mCityTextView,
-                    getString(R.string.icon_map),
-                    getString(R.string.location_city, KBLocationProvider.getCity(getActivity())));
-        }
+
+        boolean isLocationAvailable = (currentLocation != null);
+
+        String latitudeResult = getString(R.string.location_latitude, isLocationAvailable ? String.format("%f", currentLocation.getLatitude()) : UNKNOWN_LOCATION);
+        String longitudeResult = getString(R.string.location_latitude, isLocationAvailable ? String.format("%f", currentLocation.getLongitude()) : UNKNOWN_LOCATION);
+        String accuracyResult = getString(R.string.location_latitude, isLocationAvailable ? String.format("%f", currentLocation.getAccuracy()) : UNKNOWN_LOCATION);
+        String cityResult = getString(R.string.location_latitude, isLocationAvailable ? KBLocationProvider.getCity(getActivity()) : UNKNOWN_LOCATION);
+
+        updateLocationTextView(mLatitudeTextView, getString(R.string.icon_location), latitudeResult);
+        updateLocationTextView(mLongitudeTextView, getString(R.string.icon_location), longitudeResult);
+        updateLocationTextView(mAccuracyTextView, getString(R.string.icon_target), accuracyResult);
+        updateLocationTextView(mCityTextView, getString(R.string.icon_map), cityResult);
     }
 
     private TextView updateLocationTextView(TextView textView, String icon, String text) {
