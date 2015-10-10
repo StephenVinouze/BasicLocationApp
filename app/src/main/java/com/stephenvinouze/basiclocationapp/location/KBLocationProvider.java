@@ -7,14 +7,11 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -25,7 +22,6 @@ import com.google.android.gms.location.LocationServices;
 
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.RootContext;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,10 +35,8 @@ import java.util.TimerTask;
 @EBean(scope = EBean.Scope.Singleton)
 public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    @RootContext
-    Context mContext;
-
     private boolean isGPSFix;
+    private boolean mResolvingError;
     private boolean mIsUpdatingLocation;
     private boolean mIsListeningLocationUpdates;
     private float mDesiredAccuracy = MINIMUM_ACCURACY;
@@ -52,6 +46,7 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
     private GoogleApiClient mApiClient;
     private LocationRequest mLocationRequest;
     private KBLocationCallback mCallback;
+    private Activity mActivity;
 
     private static Location kLocation;
 
@@ -91,8 +86,7 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         return kLocation;
     }
 
-    public static String getCity(Context context) {
-        String city = null;
+    public static Address getAdress(Context context) {
         if (kLocation != null) {
 
             Geocoder geocoder = new Geocoder(context, Locale.getDefault());
@@ -100,13 +94,21 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
             try {
                 addresses = geocoder.getFromLocation(kLocation.getLatitude(), kLocation.getLongitude(), 1);
                 if (addresses != null && !addresses.isEmpty()) {
-                    city = addresses.get(0).getLocality();
+                    return addresses.get(0);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return city;
+        return null;
+    }
+
+    public static String getCity(Context context) {
+        Address address = getAdress(context);
+        if (address != null) {
+            return address.getLocality();
+        }
+        return null;
     }
 
     public boolean checkPermissions(Activity activity, int requestCode, int[] grantResults) {
@@ -127,7 +129,7 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         if (!isPermissionGranted) {
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION);
         } else {
-            mApiClient = new GoogleApiClient.Builder(mContext)
+            mApiClient = new GoogleApiClient.Builder(mActivity)
                     .addApi(LocationServices.API)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -137,9 +139,6 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             mLocationRequest.setInterval(UPDATE_POSITION_INTERVAL);
             mLocationRequest.setFastestInterval(FASTEST_UPDATE_POSITION_INTERVAL);
-
-//            LocationManager locationManager = (LocationManager)mContext.getSystemService(Context.LOCATION_SERVICE);
-//            locationManager.addGpsStatusListener(new GpsListener());
         }
         return isPermissionGranted;
     }
@@ -197,13 +196,14 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
 
     @Background
     public void fetchLocation(Activity activity, KBLocationCallback callback) {
-        if (initializeLocation(activity) && (GooglePlayServicesUtil.isGooglePlayServicesAvailable(mContext) == ConnectionResult.SUCCESS)) {
+        mActivity = activity;
+
+        if (initializeLocation(activity) && (GooglePlayServicesUtil.isGooglePlayServicesAvailable(mActivity) == ConnectionResult.SUCCESS)) {
             mCallback = callback;
 
             if (!mApiClient.isConnected()) {
                 mApiClient.connect();
-            }
-            else if (!mIsUpdatingLocation) {
+            } else if (!mIsUpdatingLocation) {
                 startLocationUpdates();
             }
         }
@@ -220,26 +220,21 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         Log.i(TAG, "Connection suspended");
     }
 
-    private boolean mResolvingError;
-
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.i(TAG, "Connection failed");
 
-        Activity activity = (Activity)mContext;
         if (!mResolvingError) {
             if (connectionResult.hasResolution()) {
                 try {
                     mResolvingError = true;
-                    connectionResult.startResolutionForResult(activity, REQUEST_RESOLVE_ERROR);
+                    connectionResult.startResolutionForResult(mActivity, REQUEST_RESOLVE_ERROR);
                 } catch (IntentSender.SendIntentException e) {
-                    // There was an error with the resolution intent. Try again.
                     mApiClient.connect();
                 }
             }
             else {
-                // Show dialog using GooglePlayServicesUtil.getErrorDialog()
-                GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), activity, connectionResult.getErrorCode());
+                GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), mActivity, connectionResult.getErrorCode());
                 mResolvingError = true;
 
                 if (mCallback != null) {
@@ -264,33 +259,6 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         if (mCallback != null) {
             mCallback.onLocationReceived(location);
         }
-    }
-
-    @UiThread
-    void updateGpsStatus(String status) {
-        Toast.makeText(mContext, status, Toast.LENGTH_SHORT).show();
-    }
-
-    private class GpsListener implements GpsStatus.Listener {
-
-        public void onGpsStatusChanged(int event) {
-            switch (event) {
-                case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
-                    if (kLocation != null) {
-                        isGPSFix = (SystemClock.elapsedRealtime() - mLastLocationElapsedTime) < GPS_UPDATE_INTERVAL;
-                    }
-
-                    updateGpsStatus(isGPSFix ? "GPS fixed" : "GPS lost");
-
-                    break;
-                case GpsStatus.GPS_EVENT_FIRST_FIX:
-                    isGPSFix = true;
-                    updateGpsStatus("GPS first acquired");
-
-                    break;
-            }
-        }
-
     }
 
 }
