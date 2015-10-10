@@ -22,6 +22,8 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.stephenvinouze.basiclocationapp.R;
+import com.stephenvinouze.basiclocationapp.fragments.OsmFragment;
+import com.stephenvinouze.basiclocationapp.fragments.OsmFragment_;
 import com.stephenvinouze.basiclocationapp.location.KBLocationCallback;
 import com.stephenvinouze.basiclocationapp.location.KBLocationProvider;
 
@@ -48,6 +50,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private boolean mFollowUserLocation;
     private SupportMapFragment mMapFragment;
+    private OsmFragment mOsmFragment;
 
     @AfterViews
     void initViews() {
@@ -94,7 +97,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMapFragment = SupportMapFragment.newInstance();
         mMapFragment.getMapAsync(this);
 
-        getSupportFragmentManager().beginTransaction().add(R.id.map_container, mMapFragment).commit();
+        mOsmFragment = OsmFragment_.builder().build();
+
+        //getSupportFragmentManager().beginTransaction().add(R.id.map_container, mMapFragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.map_container, mOsmFragment).commit();
     }
 
     private void configureMap(Location location) {
