@@ -20,6 +20,17 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/toolbar_margin_top"/>
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/map_locate_me_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_margin="16dp"
+            android:clickable="true"
+            android:src="@drawable/ic_location"/>
+
     </RelativeLayout>
 
     <android.support.design.widget.NavigationView

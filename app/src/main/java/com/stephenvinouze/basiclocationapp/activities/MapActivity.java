@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -26,6 +27,7 @@ import com.stephenvinouze.basiclocationapp.location.KBLocationProvider;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
@@ -44,6 +46,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @ViewById(R.id.navigation_view)
     NavigationView mNavigationView;
 
+    private boolean mFollowUserLocation;
     private SupportMapFragment mMapFragment;
 
     @AfterViews
@@ -94,10 +97,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void configureMap(Location location) {
-        if (location != null) {
+        if (location != null && mFollowUserLocation) {
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
+            mMapFragment.getMap().moveCamera(cameraUpdate);
+        }
+    }
+
+    @Click(R.id.map_locate_me_button)
+    void onLocateMeClicked() {
+        mFollowUserLocation = true;
+
+        Location currentLocation = KBLocationProvider.getLocation();
+        if (currentLocation != null) {
             CameraPosition cp = new CameraPosition.Builder()
-                    .target(new LatLng(location.getLatitude(), location.getLongitude()))
-                    .bearing(location.getBearing())
+                    .target(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
+                    .bearing(currentLocation.getBearing())
                     .tilt(0)
                     .zoom(16)
                     .build();
@@ -118,8 +133,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap map) {
+        mFollowUserLocation = true;
+
         map.setMyLocationEnabled(true);
         map.setPadding(0, (int) getResources().getDimension(R.dimen.compass_margin_top), 0, 0);
+        map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                if (KBLocationProvider.getLocation() != null) {
+                    mFollowUserLocation = false;
+                }
+            }
+        });
 
         UiSettings mapSettings = map.getUiSettings();
         mapSettings.setMyLocationButtonEnabled(false);
