@@ -63,25 +63,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override public boolean onNavigationItemSelected(MenuItem menuItem) {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
                 mNavigationDrawer.closeDrawers();
                 menuItem.setChecked(true);
 
                 switch (menuItem.getItemId()) {
-                    case R.id. menu_map_item:
+                    case R.id.menu_map_item:
                         mMapFragment.getMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         break;
 
-                    case R.id. menu_location_item:
+                    case R.id.menu_location_item:
                         menuItem.setChecked(false);
                         startActivity(new Intent(MapActivity.this, LocationActivity_.class));
                         break;
 
-                    case R.id. menu_satellite_item:
+                    case R.id.menu_satellite_item:
                         mMapFragment.getMap().setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                         break;
 
-                    case R.id. menu_terrain_item:
+                    case R.id.menu_terrain_item:
                         mMapFragment.getMap().setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                         break;
                 }
@@ -172,6 +173,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 @Override
                 public void onLocationRefused() {
                     Toast.makeText(MapActivity.this, getString(R.string.location_permission_denied), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onGpsStatusChanged(KBLocationProvider.KBGpsStatus status) {
+                    switch (status) {
+                        case OK:
+                            Toast.makeText(MapActivity.this, getString(R.string.gps_status_ok), Toast.LENGTH_SHORT).show();
+                            break;
+
+                        case KO:
+                            Toast.makeText(MapActivity.this, getString(R.string.gps_status_ko), Toast.LENGTH_SHORT).show();
+                            break;
+                    }
                 }
             });
         }

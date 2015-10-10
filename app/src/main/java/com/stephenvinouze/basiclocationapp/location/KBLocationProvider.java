@@ -7,9 +7,10 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.GpsStatus;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -35,13 +36,11 @@ import java.util.TimerTask;
 @EBean(scope = EBean.Scope.Singleton)
 public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private boolean isGPSFix;
     private boolean mResolvingError;
     private boolean mIsUpdatingLocation;
     private boolean mIsListeningLocationUpdates;
     private float mDesiredAccuracy = MINIMUM_ACCURACY;
     private int mTimeoutDuration;
-    private long mLastLocationElapsedTime;
     private Timer mTimer;
     private GoogleApiClient mApiClient;
     private LocationRequest mLocationRequest;
@@ -51,12 +50,13 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
     private static Location kLocation;
 
     private static final String TAG = "LocationProvider";
-    private static final long GPS_UPDATE_INTERVAL = 5000;
     private static final long UPDATE_POSITION_INTERVAL = 10000;
     private static final long FASTEST_UPDATE_POSITION_INTERVAL = UPDATE_POSITION_INTERVAL / 2;
     private static final float MINIMUM_ACCURACY = 50.0f;
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     private static final int REQUEST_CODE_LOCATION = 2;
+
+    public enum KBGpsStatus { OK, KO }
 
     public int getTimeoutDuration() {
         return mTimeoutDuration;
@@ -124,6 +124,19 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         return false;
     }
 
+    public void fetchLocation(Activity activity) {
+        fetchLocation(activity, null);
+    }
+
+    public void fetchLocation(Activity activity, KBLocationCallback callback) {
+        mActivity = activity;
+        mCallback = callback;
+
+        if (initializeLocation(activity) && (GooglePlayServicesUtil.isGooglePlayServicesAvailable(mActivity) == ConnectionResult.SUCCESS)) {
+            executeFetchLocation(activity);
+        }
+    }
+
     private boolean initializeLocation(Activity activity) {
         boolean isPermissionGranted = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         if (!isPermissionGranted) {
@@ -139,6 +152,10 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             mLocationRequest.setInterval(UPDATE_POSITION_INTERVAL);
             mLocationRequest.setFastestInterval(FASTEST_UPDATE_POSITION_INTERVAL);
+
+            LocationManager locationManager = (LocationManager)mActivity.getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new StatusLocationListener());
+            locationManager.addGpsStatusListener(new KBGpsStatusListener(mCallback));
         }
         return isPermissionGranted;
     }
@@ -190,22 +207,11 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
     }
 
     @Background
-    public void fetchLocation(Activity activity) {
-        fetchLocation(activity, null);
-    }
-
-    @Background
-    public void fetchLocation(Activity activity, KBLocationCallback callback) {
-        mActivity = activity;
-
-        if (initializeLocation(activity) && (GooglePlayServicesUtil.isGooglePlayServicesAvailable(mActivity) == ConnectionResult.SUCCESS)) {
-            mCallback = callback;
-
-            if (!mApiClient.isConnected()) {
-                mApiClient.connect();
-            } else if (!mIsUpdatingLocation) {
-                startLocationUpdates();
-            }
+    void executeFetchLocation(Activity activity) {
+        if (!mApiClient.isConnected()) {
+            mApiClient.connect();
+        } else if (!mIsUpdatingLocation) {
+            startLocationUpdates();
         }
     }
 
@@ -250,8 +256,6 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
 
         kLocation = location;
 
-        mLastLocationElapsedTime = SystemClock.elapsedRealtime();
-
         if (!mIsListeningLocationUpdates && location.getAccuracy() < mDesiredAccuracy) {
             stopLocationUpdates();
         }
@@ -259,6 +263,47 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         if (mCallback != null) {
             mCallback.onLocationReceived(location);
         }
+    }
+
+    private class KBGpsStatusListener implements GpsStatus.Listener {
+
+        private KBLocationCallback mCallback;
+
+        public KBGpsStatusListener(KBLocationCallback callback) {
+            mCallback = callback;
+        }
+
+        @Override
+        public void onGpsStatusChanged(int event) {
+            switch (event) {
+                case GpsStatus.GPS_EVENT_STARTED:
+                case GpsStatus.GPS_EVENT_FIRST_FIX:
+                    if (mCallback != null) {
+                        mCallback.onGpsStatusChanged(KBGpsStatus.OK);
+                    }
+                    break;
+
+                case GpsStatus.GPS_EVENT_STOPPED:
+                    if (mCallback != null) {
+                        mCallback.onGpsStatusChanged(KBGpsStatus.KO);
+                    }
+                    break;
+            }
+        }
+    }
+
+    private class StatusLocationListener implements android.location.LocationListener {
+        @Override
+        public void onLocationChanged(Location location) {}
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+        @Override
+        public void onProviderEnabled(String provider) {}
+
+        @Override
+        public void onProviderDisabled(String provider) {}
     }
 
 }

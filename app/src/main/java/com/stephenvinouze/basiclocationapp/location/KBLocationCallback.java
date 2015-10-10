@@ -9,4 +9,5 @@ public interface KBLocationCallback {
     void onLocationReceived(Location location);
     void onLocationFailed();
     void onLocationRefused();
+    void onGpsStatusChanged(KBLocationProvider.KBGpsStatus status);
 }
