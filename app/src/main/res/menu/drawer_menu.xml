@@ -18,7 +18,6 @@
         android:checkableBehavior="none">
         <item
             android:id="@+id/menu_location_item"
-            android:icon="@drawable/ic_location"
             android:title="@string/menu_location_title"/>
     </group>
 
