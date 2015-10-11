@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -11,12 +12,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.stephenvinouze.basiclocationapp.R;
 import com.stephenvinouze.basiclocationapp.fragments.GoogleMapFragment;
 import com.stephenvinouze.basiclocationapp.fragments.GoogleMapFragment_;
+import com.stephenvinouze.basiclocationapp.fragments.LocationFragment_;
 import com.stephenvinouze.basiclocationapp.fragments.OpenStreetMapFragment;
 import com.stephenvinouze.basiclocationapp.fragments.OpenStreetMapFragment_;
 import com.stephenvinouze.basiclocationapp.interfaces.IMapListener;
@@ -43,6 +46,9 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
 
     @ViewById(R.id.navigation_view)
     NavigationView mNavigationView;
+
+    @ViewById(R.id.left_panel_container)
+    FrameLayout mLeftPanelContainer;
 
     private boolean mSatelliteChecked;
     private boolean mTerrainChecked;
@@ -86,7 +92,13 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
                         break;
 
                     case R.id.menu_location_item:
-                        startActivity(new Intent(MapActivity.this, LocationActivity_.class));
+                        if (mLeftPanelContainer == null) {
+                            startActivity(new Intent(MapActivity.this, LocationActivity_.class));
+                        }
+                        else {
+                            displayLeftFragment(LocationFragment_.builder().build());
+                        }
+
                         break;
                 }
 
@@ -138,6 +150,10 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
     private void displayOpenStreetMap() {
         mMapListener = mOpenStreetMapFragment = OpenStreetMapFragment_.builder().build();
         getSupportFragmentManager().beginTransaction().replace(R.id.map_container, mOpenStreetMapFragment).commit();
+    }
+
+    private void displayLeftFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction().replace(R.id.left_panel_container, fragment).commit();
     }
 
     @Click(R.id.map_locate_me_button)
