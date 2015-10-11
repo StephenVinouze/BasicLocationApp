@@ -44,6 +44,8 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
     @ViewById(R.id.navigation_view)
     NavigationView mNavigationView;
 
+    private boolean mSatelliteChecked;
+    private boolean mTerrainChecked;
     private IMapListener mMapListener;
     private GoogleMapFragment mGoogleMapFragment;
     private OpenStreetMapFragment mOpenStreetMapFragment;
@@ -70,13 +72,17 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
 
                 switch (menuItem.getItemId()) {
                     case R.id.menu_satellite_item:
-                        menuItem.setChecked(!menuItem.isChecked());
-                        mMapListener.onMapTypeChanged(menuItem.isChecked() ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
+                        mTerrainChecked = false;
+                        mSatelliteChecked = !mSatelliteChecked;
+                        menuItem.setChecked(mSatelliteChecked);
+                        mMapListener.onMapTypeChanged(mSatelliteChecked ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
                         break;
 
                     case R.id.menu_terrain_item:
-                        menuItem.setChecked(!menuItem.isChecked());
-                        mMapListener.onMapTypeChanged(menuItem.isChecked() ? GoogleMap.MAP_TYPE_TERRAIN : GoogleMap.MAP_TYPE_NORMAL);
+                        mSatelliteChecked = false;
+                        mTerrainChecked = !mTerrainChecked;
+                        menuItem.setChecked(mTerrainChecked);
+                        mMapListener.onMapTypeChanged(mTerrainChecked ? GoogleMap.MAP_TYPE_TERRAIN : GoogleMap.MAP_TYPE_NORMAL);
                         break;
 
                     case R.id.menu_location_item:
