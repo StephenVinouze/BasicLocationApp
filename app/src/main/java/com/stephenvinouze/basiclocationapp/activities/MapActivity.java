@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -43,8 +42,11 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
     @ViewById(R.id.navigation_view)
     NavigationView mNavigationView;
 
+    private MapType mMapType;
     private GoogleMapFragment mGoogleMapFragment;
     private OpenStreetMapFragment mOpenStreetMapFragment;
+
+    private enum MapType { GOOGLE_MAP, OPEN_STREET_MAP }
 
     @AfterViews
     void initViews() {
@@ -128,18 +130,28 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
     }
 
     private void displayGoogleMap() {
+        mMapType = MapType.GOOGLE_MAP;
         mGoogleMapFragment = GoogleMapFragment_.builder().build();
         getSupportFragmentManager().beginTransaction().replace(R.id.map_container, mGoogleMapFragment).commit();
     }
 
     private void displayOpenStreetMap() {
+        mMapType = MapType.OPEN_STREET_MAP;
         mOpenStreetMapFragment = OpenStreetMapFragment_.builder().build();
         getSupportFragmentManager().beginTransaction().replace(R.id.map_container, mOpenStreetMapFragment).commit();
     }
 
     @Click(R.id.map_locate_me_button)
     void onLocateMeClicked() {
-        mGoogleMapFragment.followLocation();
+        switch (mMapType) {
+            case GOOGLE_MAP:
+                mGoogleMapFragment.followLocation();
+                break;
+
+            case OPEN_STREET_MAP:
+                mOpenStreetMapFragment.followLocation();
+                break;
+        }
     }
 
     @Override
@@ -151,10 +163,6 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                mNavigationDrawer.openDrawer(GravityCompat.START);
-                break;
-
             case R.id.google_map_action:
                 displayGoogleMap();
                 break;
@@ -172,4 +180,5 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         mLocationProvider.checkPermissions(this, requestCode, grantResults);
     }
+
 }

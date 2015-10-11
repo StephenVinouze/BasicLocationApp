@@ -26,21 +26,13 @@ public class OpenStreetMapFragment extends Fragment {
         mMapView.getController().setZoom(20);
         mOverlay = new MyLocationNewOverlay(getActivity(), mMapView);
         mMapView.getOverlays().add(mOverlay);
+
+        followLocation();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
+    public void followLocation() {
         mOverlay.enableMyLocation();
         mOverlay.enableFollowLocation();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        mOverlay.disableMyLocation();
-        mOverlay.disableFollowLocation();
-    }
 }
