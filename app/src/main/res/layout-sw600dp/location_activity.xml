@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    android:id="@+id/location_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/location_parent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/blackAlpha"
+    android:paddingBottom="@dimen/translucent_content_padding_height"
+    android:paddingLeft="@dimen/translucent_content_padding_width"
+    android:paddingRight="@dimen/translucent_content_padding_width"
+    android:paddingTop="@dimen/translucent_content_padding_height">
 
     <include layout="@layout/toolbar" />
 

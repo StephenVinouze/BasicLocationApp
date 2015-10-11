@@ -32,7 +32,8 @@
         <activity
             android:name=".activities.LocationActivity_"
             android:configChanges="orientation|screenSize"
-            android:label="@string/location_name">
+            android:label="@string/location_name"
+            android:theme="@style/TranslucentTheme">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activities.MapActivity_"/>
         </activity>
     </application>
