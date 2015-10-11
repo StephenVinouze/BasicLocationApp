@@ -11,6 +11,7 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.stephenvinouze.basiclocationapp.R;
+import com.stephenvinouze.basiclocationapp.interfaces.IMapListener;
 import com.stephenvinouze.basiclocationapp.location.KBLocationProvider;
 
 import org.androidannotations.annotations.AfterViews;
@@ -20,7 +21,7 @@ import org.androidannotations.annotations.EFragment;
  * Created by Stephen Vinouze on 11/10/2015.
  */
 @EFragment
-public class GoogleMapFragment extends SupportMapFragment implements OnMapReadyCallback, GoogleMap.OnCameraChangeListener {
+public class GoogleMapFragment extends SupportMapFragment implements IMapListener, OnMapReadyCallback, GoogleMap.OnCameraChangeListener {
 
     private boolean mIsReady;
     private boolean mIsFirstUpdate;
@@ -45,7 +46,7 @@ public class GoogleMapFragment extends SupportMapFragment implements OnMapReadyC
         }
     }
 
-    public void followLocation() {
+    private void followLocation() {
         mFollowUserLocation = true;
 
         Location currentLocation = KBLocationProvider.getLocation();
@@ -80,5 +81,15 @@ public class GoogleMapFragment extends SupportMapFragment implements OnMapReadyC
     @Override
     public void onCameraChange(CameraPosition cameraPosition) {
         mFollowUserLocation = false;
+    }
+
+    @Override
+    public void onCenterMap() {
+        followLocation();
+    }
+
+    @Override
+    public void onMapTypeChanged(int mapType) {
+        getMap().setMapType(mapType);
     }
 }

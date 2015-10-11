@@ -13,11 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.stephenvinouze.basiclocationapp.R;
 import com.stephenvinouze.basiclocationapp.fragments.GoogleMapFragment;
 import com.stephenvinouze.basiclocationapp.fragments.GoogleMapFragment_;
 import com.stephenvinouze.basiclocationapp.fragments.OpenStreetMapFragment;
 import com.stephenvinouze.basiclocationapp.fragments.OpenStreetMapFragment_;
+import com.stephenvinouze.basiclocationapp.interfaces.IMapListener;
 import com.stephenvinouze.basiclocationapp.location.KBLocationCallback;
 import com.stephenvinouze.basiclocationapp.location.KBLocationProvider;
 
@@ -42,11 +44,9 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
     @ViewById(R.id.navigation_view)
     NavigationView mNavigationView;
 
-    private MapType mMapType;
+    private IMapListener mMapListener;
     private GoogleMapFragment mGoogleMapFragment;
     private OpenStreetMapFragment mOpenStreetMapFragment;
-
-    private enum MapType { GOOGLE_MAP, OPEN_STREET_MAP }
 
     @AfterViews
     void initViews() {
@@ -56,7 +56,6 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayHomeAsUpEnabled(true);
-            //actionBar.setHomeButtonEnabled(true);
         }
 
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, mNavigationDrawer, mToolbar, R.string.app_name, R.string.app_name);
@@ -71,22 +70,22 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
                 menuItem.setChecked(true);
 
                 switch (menuItem.getItemId()) {
-//                    case R.id.menu_map_item:
-//                        mGoogleMapFragment.getMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
-//                        break;
+                    case R.id.menu_map_item:
+                        mMapListener.onMapTypeChanged(GoogleMap.MAP_TYPE_NORMAL);
+                        break;
 
                     case R.id.menu_location_item:
                         menuItem.setChecked(false);
                         startActivity(new Intent(MapActivity.this, LocationActivity_.class));
                         break;
 
-//                    case R.id.menu_satellite_item:
-//                        mGoogleMapFragment.getMap().setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-//                        break;
-//
-//                    case R.id.menu_terrain_item:
-//                        mGoogleMapFragment.getMap().setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-//                        break;
+                    case R.id.menu_satellite_item:
+                        mMapListener.onMapTypeChanged(GoogleMap.MAP_TYPE_SATELLITE);
+                        break;
+
+                    case R.id.menu_terrain_item:
+                        mMapListener.onMapTypeChanged(GoogleMap.MAP_TYPE_TERRAIN);
+                        break;
                 }
 
                 return true;
@@ -130,28 +129,18 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
     }
 
     private void displayGoogleMap() {
-        mMapType = MapType.GOOGLE_MAP;
-        mGoogleMapFragment = GoogleMapFragment_.builder().build();
+        mMapListener = mGoogleMapFragment = GoogleMapFragment_.builder().build();
         getSupportFragmentManager().beginTransaction().replace(R.id.map_container, mGoogleMapFragment).commit();
     }
 
     private void displayOpenStreetMap() {
-        mMapType = MapType.OPEN_STREET_MAP;
-        mOpenStreetMapFragment = OpenStreetMapFragment_.builder().build();
+        mMapListener = mOpenStreetMapFragment = OpenStreetMapFragment_.builder().build();
         getSupportFragmentManager().beginTransaction().replace(R.id.map_container, mOpenStreetMapFragment).commit();
     }
 
     @Click(R.id.map_locate_me_button)
     void onLocateMeClicked() {
-        switch (mMapType) {
-            case GOOGLE_MAP:
-                mGoogleMapFragment.followLocation();
-                break;
-
-            case OPEN_STREET_MAP:
-                mOpenStreetMapFragment.followLocation();
-                break;
-        }
+        mMapListener.onCenterMap();
     }
 
     @Override
