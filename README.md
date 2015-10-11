@@ -17,6 +17,18 @@ This basic location application implements these several following features :
 * Handle Android M new permission system
 * Detect GPS loss/recovery
 
+# Preview
+![alt text](images/phone_gmap_normal.png)
+![alt text](images/phone_gmap_satellite.png)
+![alt text](images/phone_osm.png)
+![alt text](images/phone_menu.png)
+![alt text](images/phone_location.png)
+![alt text](images/tablet_gmap_normal.png)
+![alt text](images/tablet_gmap_satellite.png)
+![alt text](images/tablet_osm.png)
+![alt text](images/tablet_menu.png)
+![alt text](images/tablet_location.png)
+
 ## License
 
 ```
