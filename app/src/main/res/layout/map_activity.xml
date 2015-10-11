@@ -14,11 +14,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-        <include
-            layout="@layout/toolbar"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/toolbar_margin_top"/>
+            android:layout_margin="50dp"
+            android:background="@android:color/transparent"
+            android:minHeight="?attr/actionBarSize"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/map_locate_me_button"

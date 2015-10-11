@@ -14,7 +14,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
  * Created by Stephen Vinouze on 10/10/2015.
  */
 @EFragment(R.layout.osm_layout)
-public class OsmFragment extends Fragment {
+public class OpenStreetMapFragment extends Fragment {
 
     @ViewById(R.id.mapview)
     MapView mMapView;

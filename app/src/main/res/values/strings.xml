@@ -8,6 +8,9 @@
     <string name="menu_terrain_title">Relief</string>
     <string name="menu_satellite_title">Satellite</string>
 
+    <string name="map_google_menu">Google Maps</string>
+    <string name="map_osm_menu">Open Street Maps</string>
+
     <string name="location_latitude">Latitude : %s</string>
     <string name="location_longitude">Longitude : %s</string>
     <string name="location_accuracy">Précision : %s</string>
@@ -15,6 +18,6 @@
     <string name="location_update_error">Failed to fetch current location</string>
     <string name="location_permission_denied">La permission pour récupérer la position de l\'utilisateur ont été refusé</string>
 
-    <string name="gps_status_ok">Signal GPS trouvé</string>
+    <string name="gps_status_ok">Signal GPS retrouvé</string>
     <string name="gps_status_ko">Signal GPS perdu</string>
 </resources>
