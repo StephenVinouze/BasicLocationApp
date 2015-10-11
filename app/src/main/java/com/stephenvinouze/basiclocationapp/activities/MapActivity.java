@@ -67,24 +67,20 @@ public class MapActivity extends AppCompatActivity implements ActivityCompat.OnR
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 mNavigationDrawer.closeDrawers();
-                menuItem.setChecked(true);
 
                 switch (menuItem.getItemId()) {
-                    case R.id.menu_map_item:
-                        mMapListener.onMapTypeChanged(GoogleMap.MAP_TYPE_NORMAL);
-                        break;
-
-                    case R.id.menu_location_item:
-                        menuItem.setChecked(false);
-                        startActivity(new Intent(MapActivity.this, LocationActivity_.class));
-                        break;
-
                     case R.id.menu_satellite_item:
-                        mMapListener.onMapTypeChanged(GoogleMap.MAP_TYPE_SATELLITE);
+                        menuItem.setChecked(!menuItem.isChecked());
+                        mMapListener.onMapTypeChanged(menuItem.isChecked() ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
                         break;
 
                     case R.id.menu_terrain_item:
-                        mMapListener.onMapTypeChanged(GoogleMap.MAP_TYPE_TERRAIN);
+                        menuItem.setChecked(!menuItem.isChecked());
+                        mMapListener.onMapTypeChanged(menuItem.isChecked() ? GoogleMap.MAP_TYPE_TERRAIN : GoogleMap.MAP_TYPE_NORMAL);
+                        break;
+
+                    case R.id.menu_location_item:
+                        startActivity(new Intent(MapActivity.this, LocationActivity_.class));
                         break;
                 }
 

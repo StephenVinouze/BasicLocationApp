@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/menu_map_item"
-            android:checked="true"
-            android:icon="@drawable/ic_map"
-            android:title="@string/menu_map_title"/>
-        <item
-            android:id="@+id/menu_location_item"
-            android:icon="@drawable/ic_location"
-            android:title="@string/menu_location_title"/>
+    <group
+        android:id="@+id/menu_map_group"
+        android:checkableBehavior="all">
         <item
             android:id="@+id/menu_satellite_item"
             android:icon="@drawable/ic_satellite"
@@ -19,4 +12,14 @@
             android:icon="@drawable/ic_terrain"
             android:title="@string/menu_terrain_title"/>
     </group>
+
+    <group
+        android:id="@+id/menu_other_group"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/menu_location_item"
+            android:icon="@drawable/ic_location"
+            android:title="@string/menu_location_title"/>
+    </group>
+
 </menu>
