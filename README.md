@@ -34,6 +34,26 @@ The User Interface uses the new Material Design guidelines and includes the [And
 
 Finally the application is API 14 minimum and supports the lattest Marshmallow API 23.
 
+# Testing
+The application has been configured to use [Robolectric](http://robolectric.org/getting-started/) test library and should be up and running. There are still several issues with the lattest version 3.0 configured with Android M and AndroidAnnotations. I did not manage to make the test run and I opened an [SO issue](http://stackoverflow.com/questions/33089761/robolectric-with-androidannotations-make-tests-hang-not-running) to determine what went wrong.
+
+There are still tests to be written to cover the application
+
+# Enhancements
+Here is a list of a few features that could be added to this application:
+
+* Add zoom-in and zoom-out float buttons to have a better control of the zoom that has been arbitrarily set. It would be especially useful for the Open Street Map as there is no pan gesture embedded to control the zoom level
+* Add a settings activity to define your preferences:
+  * Zoom level on launch
+  * Default map to display on launch
+* Let user add markers and annotate it with the address
+* Support more maps
+* Add place provider that would list the locations of the searched items (e.g: pharmacy)
+* Better handling of GPS loss/recovery with different status to let know the user for how long the GPS was lost
+* Add unit tests with **Robolectric** and/or **Mockito**
+* Add integration tests **Roboguice**
+* Add UI tests with **Espresso**
+
 # License
 
 ```
