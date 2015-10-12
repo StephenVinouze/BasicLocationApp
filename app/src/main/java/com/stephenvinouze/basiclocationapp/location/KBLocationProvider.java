@@ -86,7 +86,7 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
         return kLocation;
     }
 
-    public static Address getAdress(Context context) {
+    public static Address getAddress(Context context) {
         if (kLocation != null) {
 
             Geocoder geocoder = new Geocoder(context, Locale.getDefault());
@@ -104,7 +104,7 @@ public class KBLocationProvider implements GoogleApiClient.ConnectionCallbacks, 
     }
 
     public static String getCity(Context context) {
-        Address address = getAdress(context);
+        Address address = getAddress(context);
         if (address != null) {
             return address.getLocality();
         }

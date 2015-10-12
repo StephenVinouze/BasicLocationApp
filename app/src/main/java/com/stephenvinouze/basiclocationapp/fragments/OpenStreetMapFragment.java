@@ -3,7 +3,7 @@ package com.stephenvinouze.basiclocationapp.fragments;
 import android.support.v4.app.Fragment;
 
 import com.stephenvinouze.basiclocationapp.R;
-import com.stephenvinouze.basiclocationapp.interfaces.IMapListener;
+import com.stephenvinouze.basiclocationapp.interfaces.MapInterface;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
@@ -15,7 +15,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
  * Created by Stephen Vinouze on 10/10/2015.
  */
 @EFragment(R.layout.osm_layout)
-public class OpenStreetMapFragment extends Fragment implements IMapListener {
+public class OpenStreetMapFragment extends Fragment implements MapInterface {
 
     @ViewById(R.id.mapview)
     MapView mMapView;

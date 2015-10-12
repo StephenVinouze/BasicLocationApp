@@ -18,7 +18,7 @@ import com.stephenvinouze.basiclocationapp.fragments.GoogleMapFragment;
 import com.stephenvinouze.basiclocationapp.fragments.GoogleMapFragment_;
 import com.stephenvinouze.basiclocationapp.fragments.OpenStreetMapFragment;
 import com.stephenvinouze.basiclocationapp.fragments.OpenStreetMapFragment_;
-import com.stephenvinouze.basiclocationapp.interfaces.IMapListener;
+import com.stephenvinouze.basiclocationapp.interfaces.MapInterface;
 import com.stephenvinouze.basiclocationapp.location.KBLocationCallback;
 import com.stephenvinouze.basiclocationapp.location.KBLocationProvider;
 
@@ -45,7 +45,7 @@ public class MapActivity extends KBActivity implements ActivityCompat.OnRequestP
 
     private boolean mSatelliteChecked;
     private boolean mTerrainChecked;
-    private IMapListener mMapListener;
+    private MapInterface mMapInterface;
     private GoogleMapFragment mGoogleMapFragment;
     private OpenStreetMapFragment mOpenStreetMapFragment;
 
@@ -74,14 +74,14 @@ public class MapActivity extends KBActivity implements ActivityCompat.OnRequestP
                         mTerrainChecked = false;
                         mSatelliteChecked = !mSatelliteChecked;
                         menuItem.setChecked(mSatelliteChecked);
-                        mMapListener.onMapTypeChanged(mSatelliteChecked ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
+                        mMapInterface.onMapTypeChanged(mSatelliteChecked ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
                         break;
 
                     case R.id.menu_terrain_item:
                         mSatelliteChecked = false;
                         mTerrainChecked = !mTerrainChecked;
                         menuItem.setChecked(mTerrainChecked);
-                        mMapListener.onMapTypeChanged(mTerrainChecked ? GoogleMap.MAP_TYPE_TERRAIN : GoogleMap.MAP_TYPE_NORMAL);
+                        mMapInterface.onMapTypeChanged(mTerrainChecked ? GoogleMap.MAP_TYPE_TERRAIN : GoogleMap.MAP_TYPE_NORMAL);
                         break;
 
                     case R.id.menu_location_item:
@@ -130,18 +130,18 @@ public class MapActivity extends KBActivity implements ActivityCompat.OnRequestP
     }
 
     private void displayGoogleMap() {
-        mMapListener = mGoogleMapFragment = GoogleMapFragment_.builder().build();
+        mMapInterface = mGoogleMapFragment = GoogleMapFragment_.builder().build();
         getSupportFragmentManager().beginTransaction().replace(R.id.map_container, mGoogleMapFragment).commit();
     }
 
     private void displayOpenStreetMap() {
-        mMapListener = mOpenStreetMapFragment = OpenStreetMapFragment_.builder().build();
+        mMapInterface = mOpenStreetMapFragment = OpenStreetMapFragment_.builder().build();
         getSupportFragmentManager().beginTransaction().replace(R.id.map_container, mOpenStreetMapFragment).commit();
     }
 
     @Click(R.id.map_locate_me_button)
     void onLocateMeClicked() {
-        mMapListener.onCenterMap();
+        mMapInterface.onCenterMap();
     }
 
     @Override
