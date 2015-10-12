@@ -1,6 +1,12 @@
 # BasicLocationApp
 A basic application that lets you interact with the Google location provider. It is heavily inspired from the Google Maps application and its Material Design. It attempts to demonstrate how to develop this app main features.
 
+# Preview
+![alt text](images/phone_gmap_normal.png)
+![alt text](images/phone_gmap_satellite.png)
+![alt text](images/phone_osm.png)
+![alt text](images/phone_menu.png)
+
 # Features
 This basic location application implements these several following features :
 * Fetch user position
@@ -17,13 +23,18 @@ This basic location application implements these several following features :
 * Handle Android M new permission system
 * Detect GPS loss/recovery
 
-# Preview
-![alt text](images/phone_gmap_normal.png)
-![alt text](images/phone_gmap_satellite.png)
-![alt text](images/phone_osm.png)
-![alt text](images/phone_menu.png)
+# Technical considerations
+This project uses [Gradle](http://tools.android.com/tech-docs/new-build-system/user-guide) as a dependencies management tool. I also uses [AndroidAnnotations](https://github.com/excilys/androidannotations) that lets you speed up your Android development.
 
-## License
+The location is fetched by the **GoogleApiClient** from the Google Play Services. On top of it a **KBLocationProvider** has been created to let you track your locations updates or stop it when you no longer need it. For instance, you may need to fetch your location and stop the location servive as soon as you found an acceptable accuracy. Furthermore, the provider can trigger a timer that will stop fetching the location as soon as the timeout duration is reached and that no location with an acceptable accuracy has been found. Finally, the provider uses the **LocationManager** in order to listen to GPS updates and let the user know whether the GPS has been found/lost.
+
+Google Maps was displayed using a debug API key generated from my **debug.keystore** fil and after creating an Google application from the [Google Developer Console](https://console.developers.google.com/project/). The Open street Map does not need any API key but requires to include **osmdroid** and **slf4j** dependencies.
+
+The User Interface uses the new Material Design guidelines and includes the [Android design library](http://android-developers.blogspot.fr/2015/05/android-design-support-library.html).
+
+Finally the application is API 14 minimum and supports the lattest Marshmallow API 23.
+
+# License
 
 ```
 Copyright 2015 Stephen Vinouze.
