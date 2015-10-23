@@ -1,7 +1,6 @@
 # BasicLocationApp
 A basic application that lets you interact with the Google location provider. It is heavily inspired from the Google Maps application and its Material Design. It attempts to demonstrate how to develop this app main features.
 
-# Preview
 ![alt text](images/phone_gmap_normal.png)
 ![alt text](images/phone_gmap_satellite.png)
 ![alt text](images/phone_osm.png)
