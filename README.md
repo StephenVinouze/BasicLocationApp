@@ -34,7 +34,7 @@ The User Interface uses the new Material Design guidelines and includes the [And
 Finally the application is API 14 minimum and supports the lattest Marshmallow API 23.
 
 # Testing
-The application has been configured to use [Robolectric](http://robolectric.org/getting-started/) test library and should be up and running. There are still several issues with the lattest version 3.0 configured with Android M and AndroidAnnotations.
+The application has been configured to use [Robolectric](http://robolectric.org/getting-started/) test library and should be up and running.
 
 There are still tests to be written to cover the application
 
