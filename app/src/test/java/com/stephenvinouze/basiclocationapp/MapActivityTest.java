@@ -1,5 +1,6 @@
 package com.stephenvinouze.basiclocationapp;
 
+import android.Manifest;
 import android.os.Build;
 
 import com.stephenvinouze.basiclocationapp.activities.MapActivity_;
@@ -9,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertNotNull;
@@ -24,6 +27,7 @@ public class MapActivityTest {
 
     @Before
     public void setup() {
+        Shadows.shadowOf(RuntimeEnvironment.application).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
         mMapActivity = Robolectric.buildActivity(MapActivity_.class).create().get();
     }
 
